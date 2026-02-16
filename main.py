@@ -47,7 +47,7 @@ app.layout = html.Div(children=[
 
         html.Div([
             # выбор района
-            html.Label('Выбор районов наблюдения:'),
+            html.H6('Выбор районов наблюдения:'),
             dcc.Dropdown(
                 options=[{'label': x, 'value': x} for x in df_region['district'].unique()],
                 value=df_region['district'].unique().tolist(),
@@ -71,6 +71,7 @@ app.layout = html.Div(children=[
     html.Br(),
 
     html.Div([  # Графики круговые
+        html.H6('Доли событий по районам, времени  и типам в процентах'),
 
         html.Div(  # график событий по районам
 
@@ -85,7 +86,7 @@ app.layout = html.Div(children=[
         html.Div(  # график событий по типам дронов
             children=dcc.Graph(
                 id='pie_type', config={"displayModeBar": True},
-            ), className="four columns", ),
+            ), className="three columns", ),
 
     ], className='row'),  # Графики круговые pie
 
@@ -177,4 +178,4 @@ def update_charts(region, type, start_date, end_date):
 
     return event_region_figure, pie_region_figure, pie_time_figure, pie_type_figure
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
