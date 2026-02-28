@@ -6,7 +6,7 @@ from plotly import graph_objs as go
 import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
-from loaddata import min_date, max_date, df_region, df_time, df_type
+from loaddata import min_date, max_date, df_region, df_time, df_class, df_size
 
 pd.options.display.max_colwidth = 30
 pd.options.display.float_format = '{:.2f}'.format
@@ -38,10 +38,10 @@ app.layout = html.Div(children=[
             # выбор типа дрона
             html.H6('Выбор типов объектов:'),
             dcc.Dropdown(
-                options=[{'label': x, 'value': x} for x in df_type['name'].unique()],
-                value=df_type['name'].unique().tolist(),
+                options=[{'label': x, 'value': x} for x in df_class['clas'].unique()],
+                value=df_class['clas'].unique().tolist(),
                 multi=True,
-                id='type_selector'
+                id='class_selector'
             ),
         ], className='four columns'),
 
@@ -60,7 +60,7 @@ app.layout = html.Div(children=[
     html.Br(),
 
     html.Div([  # Графики столбчатые
-        html.H6('События по районам, времени  и типам'),
+        html.H6('События по районам, времени, типам и размерам'),
 
         html.Div(  # график событий по районам
             children=dcc.Graph(
@@ -104,12 +104,12 @@ app.layout = html.Div(children=[
     ],
     [
         Input("region_selector", "value"),
-        Input("type_selector", "value"),
+        Input("class_selector", "value"),
         Input("date-range", "start_date"),
         Input("date-range", "end_date"),
     ],
 )
-def update_charts(region, type, start_date, end_date):
+def update_charts(region, clas, start_date, end_date):
     start_date_f = datetime.strptime(start_date, '%Y-%m-%d')
     end_date_f = datetime.strptime(end_date, '%Y-%m-%d')
     # Фильтрация по времени
@@ -117,7 +117,7 @@ def update_charts(region, type, start_date, end_date):
     # Фильтрация по районам
     f_df_region = df_region.query('district in @region')
     # Фильтрация по типам объектов
-    f_df_type = df_type.query('name in @type')
+    f_df_class = df_class.query('clas in @clas')
 
     # Столбчатые графики
     event_region_figure = {
@@ -127,9 +127,12 @@ def update_charts(region, type, start_date, end_date):
                   go.Bar(x=f_df_time["eventsdatetime"],
                          y=f_df_time["eventcount"],
                          name='Время '),
-                  go.Bar(x=f_df_type["name"],
-                         y=f_df_type["eventcount"],
-                         name='тип сорбытия '),
+                  go.Bar(x=f_df_class["clas"],
+                         y=f_df_class["eventcount"],
+                         name='тип события '),
+                  go.Bar(x=df_size["size"],
+                         y=df_size["eventcount"],
+                         name='размер '),
                   ],
         "layout": go.Layout(xaxis={'title': 'район, время,тип события',
                                    'showgrid': True,
@@ -168,9 +171,9 @@ def update_charts(region, type, start_date, end_date):
 
     pie_type_figure = {
         "data": [go.Pie(
-            labels=f_df_type['name'],
-            values=f_df_type["eventcount"],
-            name='По nbgfv',
+            labels=f_df_class['clas'],
+            values=f_df_class["eventcount"],
+            name='По типу',
         )],
         "layout": go.Layout()
     }
@@ -178,4 +181,4 @@ def update_charts(region, type, start_date, end_date):
 
     return event_region_figure, pie_region_figure, pie_time_figure, pie_type_figure
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

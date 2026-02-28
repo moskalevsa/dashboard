@@ -6,7 +6,7 @@ pd.options.display.float_format = '{:.2f}'.format
 
 df_event = pd.read_sql(query, engine)
 
-columns_str = ['name', 'district']
+columns_str = ['clas', 'district', 'size']
 columns_numeric = ['eventcount']
 columns_datime = ['eventsdatetime']
 
@@ -31,9 +31,11 @@ df_time = df_event.groupby('eventsdatetime' ).agg({'eventcount': 'sum'}).reset_i
 #df_time.info()
 #print(df_time.head().T)
 
-df_type = df_event.groupby('name' ).agg({'eventcount': 'sum'}).reset_index()
-#df_type.info()
-#print(df_type.head().T)
+df_class = df_event.groupby('clas' ).agg({'eventcount': 'sum'}).reset_index()
+df_class.info()
+print(df_class.head().T)
+
+df_size = df_event.groupby('size' ).agg({'eventcount': 'sum'}).reset_index()
 
 min_date = df_time['eventsdatetime'].dt.date.min()
 
